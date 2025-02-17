@@ -1,0 +1,16 @@
+<h2>Task List</h2><p>Here are your tasks...</p>
+<div class="task-container">
+  @for(task of tasks$; track $index) {
+    <div>
+      <mat-card>
+        <div class="task">
+          <h2>{{ task.title }}</h2>
+          <p>{{ task.description }}</p>
+          @if(task.status){
+            <span>{{ task.status }}</span>
+          }
+        </div>
+      </mat-card>
+    </div>
+  }
+</div>

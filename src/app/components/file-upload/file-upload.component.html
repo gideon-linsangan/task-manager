@@ -1,0 +1,9 @@
+
+<input type="file" (change)="uploadFile($event)">
+@if(downloadURL$) {
+  <div>
+    <p>File uploaded successfully! 🎉</p>
+    <a [href]="downloadURL$" target="_blank">View File</a>
+  </div>
+  
+}
