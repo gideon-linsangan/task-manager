@@ -1,16 +1,11 @@
 {
   "hosting": {
-    "public": "dist/task-manager",
+    "public": "dist/task-manager/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
   }
 }
