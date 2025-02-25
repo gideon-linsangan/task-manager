@@ -1,0 +1,17 @@
+<div class="task-list">
+  <h2>Your Tasks</h2>
+  <ul>
+    @for(task of tasks$; track $index) {
+      <!-- <li>
+        {{ task.title }} - {{ task.status }}
+      </li> -->
+      <span [style.textDecoration]="task.status ? 'line-through' : 'none'">
+        {{ task.title }}
+      </span>
+      <button (click)="toggleComplete(task)">✔</button>
+      <button (click)="deleteTask(task.id!)">❌</button>
+    }
+  </ul>
+  <input [(ngModel)]="newTaskTitle$" name="taskTitle" placeholder="New Task" />
+  <button (click)="addTask()">Add Task</button>
+</div>
