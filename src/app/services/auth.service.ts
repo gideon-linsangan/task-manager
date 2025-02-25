@@ -1,19 +1,45 @@
 import { Injectable, inject } from '@angular/core';
-import { Auth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { onAuthStateChanged, 
+         signOut,
+         User, 
+         Auth,
+         signInWithEmailAndPassword, 
+         createUserWithEmailAndPassword 
+       } from '@angular/fire/auth';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private auth = inject(Auth); // ✅ Use inject() for Firebase Auth
+  private auth = inject(Auth);
+  private db = getFirestore();
+  async register(email: string, password: string) {
+    const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+    const user = userCredential.user;
 
-  async loginWithGoogle() {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(this.auth, provider);
-      console.log('User signed in:', result.user);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
+    // Create user document in Firestore
+    await setDoc(doc(this.db, 'users', user.uid), {
+      email: user.email,
+      createdAt: new Date(),
+    });
+
+    return user;
+  }
+
+  login(email: string, password: string) {
+    return signInWithEmailAndPassword(this.auth, email, password);
+  }
+
+  logout() {
+    return signOut(this.auth);
+  }
+
+  getCurrentUser(): Promise<User | null> {
+    return new Promise((resolve) => {
+      onAuthStateChanged(this.auth, (user) => {
+        resolve(user);
+      });
+    });
   }
 }

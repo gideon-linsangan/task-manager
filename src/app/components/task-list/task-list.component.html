@@ -1,16 +1,17 @@
-<h2>Task List</h2><p>Here are your tasks...</p>
-<div class="task-container">
-  @for(task of tasks$; track $index) {
-    <div>
-      <mat-card>
-        <div class="task">
-          <h2>{{ task.title }}</h2>
-          <p>{{ task.description }}</p>
-          @if(task.status){
-            <span>{{ task.status }}</span>
-          }
-        </div>
-      </mat-card>
-    </div>
-  }
+<div class="task-list">
+  <h2>Your Tasks</h2>
+  <ul>
+    @for(task of tasks$; track $index) {
+      <!-- <li>
+        {{ task.title }} - {{ task.status }}
+      </li> -->
+      <span [style.textDecoration]="task.status ? 'line-through' : 'none'">
+        {{ task.title }}
+      </span>
+      <button (click)="toggleComplete(task)">✔</button>
+      <button (click)="deleteTask(task.id!)">❌</button>
+    }
+  </ul>
+  <input [(ngModel)]="newTaskTitle$" name="taskTitle" placeholder="New Task" />
+  <button (click)="addTask()">Add Task</button>
 </div>

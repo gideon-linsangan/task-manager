@@ -1,30 +1,41 @@
-import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, deleteDoc, doc, updateDoc } from '@angular/fire/firestore';
-import { Task } from '../models/task.model'
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc, getFirestore } from 'firebase/firestore';
+import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TaskService {
-  private firestore = inject(Firestore);
-  private tasksCollection = collection(this.firestore, 'tasks'); // ✅ Use Firestore v7+
+  private db = getFirestore();
 
-  getTasks(): Observable<Task[]> {
-    return collectionData(this.tasksCollection, { idField: 'id' }) as Observable<Task[]>;
+  constructor(private authService: AuthService) {}
+
+  async addTask(title: string, completed: boolean) {
+    const user = await this.authService.getCurrentUser();
+    if (!user) throw new Error('User not logged in');
+
+    return addDoc(collection(this.db, 'tasks'), {
+      userId: user.uid,
+      title,
+      completed,
+      createdAt: new Date(),
+    });
   }
 
-  addTask(task: Task) {
-    return addDoc(this.tasksCollection, task);
+  async getUserTasks() {
+    const user = await this.authService.getCurrentUser();
+    if (!user) return [];
+
+    const q = query(collection(this.db, 'tasks'), where('userId', '==', user.uid));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  updateTask(taskId: string, updatedTask: Partial<Task>) {
-    const taskRef = doc(this.firestore, 'tasks', taskId);
-    return updateDoc(taskRef, updatedTask);
+  async updateTask(taskId: string, updates: Partial<{ title: string; status: boolean }>) {
+    return updateDoc(doc(this.db, 'tasks', taskId), updates);
   }
 
-  deleteTask(taskId: string) {
-    const taskRef = doc(this.firestore, 'tasks', taskId);
-    return deleteDoc(taskRef);
+  async deleteTask(taskId: string) {
+    return deleteDoc(doc(this.db, 'tasks', taskId));
   }
 }

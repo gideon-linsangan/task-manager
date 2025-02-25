@@ -1,50 +1,47 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../models/task.model'; // ✅ Import Task model
-import { Observable } from 'rxjs';
-
+import { FormsModule } from '@angular/forms';
+import {Task} from '../../models/task.model';
 @Component({
   selector: 'app-task-list',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <h2>Task List</h2>
-    <ul>
-      <li *ngFor="let task of tasks$ | async">
-        <span [style.textDecoration]="task.completed ? 'line-through' : 'none'">
-          {{ task.title }}
-        </span>
-        <button (click)="toggleComplete(task)">✔</button>
-        <button (click)="deleteTask(task.id!)">❌</button>
-      </li>
-    </ul>
-    <input [(ngModel)]="newTaskTitle" placeholder="New Task" />
-    <button (click)="addTask()">Add Task</button>
-  `
+  templateUrl: './task-list.component.html',
+  styleUrls: ['./task-list.component.css'],
+  imports: [FormsModule]
 })
-export class TaskListComponent {
-  private taskService = inject(TaskService);
-  tasks$: Observable<Task[]> = this.taskService.getTasks();
-  newTaskTitle: string = '';
+export class TaskListComponent implements OnInit {
+  tasks$: any[] = [];
+  newTaskTitle$: any;
 
+  taskService = inject(TaskService);
+
+  ngOnInit() {
+    this.reloadTasks()
+  }
+  reloadTasks() {
+    this.taskService.getUserTasks().then(tasks => {
+      this.tasks$ = tasks;
+    });
+  }
   addTask() {
-    if (!this.newTaskTitle.trim()) return;
+    if (!this.newTaskTitle$.trim()) return;
     const newTask: Task = {
-      title: this.newTaskTitle, description: '', completed: false,
+      title: this.newTaskTitle$, description: '',
+      completed: false,
       status: 'To-Do',
       createdAt: 0
     };
-    this.taskService.addTask(newTask);
-    this.newTaskTitle = '';
+    this.taskService.addTask(newTask.title, newTask.completed);
+    this.newTaskTitle$ = '';
+    this.reloadTasks();
   }
 
   toggleComplete(task: Task) {
-    this.taskService.updateTask(task.id!, { completed: !task.completed });
+    this.taskService.updateTask(task.id!, { status: !task.completed });
+    this.reloadTasks()
   }
 
   deleteTask(taskId: string) {
     this.taskService.deleteTask(taskId);
+    this.reloadTasks()
   }
 }
