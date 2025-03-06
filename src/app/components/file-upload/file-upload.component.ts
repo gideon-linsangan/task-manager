@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
@@ -7,9 +7,8 @@ import { StorageService } from '../../services/storage.service';
   styleUrls: ['./file-upload.component.scss']
 })
 export class FileUploadComponent {
+  private storageService = inject(StorageService)
   downloadURL$: string | null = null;
-
-  constructor(private storageService: StorageService) {}
 
   uploadFile(event: any) {
     const file = event.target.files[0];

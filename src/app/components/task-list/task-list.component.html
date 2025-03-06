@@ -5,11 +5,13 @@
       <!-- <li>
         {{ task.title }} - {{ task.status }}
       </li> -->
-      <span [style.textDecoration]="task.status ? 'line-through' : 'none'">
-        {{ task.title }}
-      </span>
-      <button (click)="toggleComplete(task)">✔</button>
-      <button (click)="deleteTask(task.id!)">❌</button>
+      <li>
+        <span [style.textDecoration]="task.status ? 'line-through' : 'none'">
+          {{ task.title }}
+        </span>
+        <button (click)="toggleComplete(task)">✔</button>
+        <button (click)="deleteTask(task.id!)">❌</button>
+      </li>
     }
   </ul>
   <input [(ngModel)]="newTaskTitle$" name="taskTitle" placeholder="New Task" />

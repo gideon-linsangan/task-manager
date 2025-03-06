@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc, getFirestore } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 
@@ -7,8 +7,7 @@ import { AuthService } from './auth.service';
 })
 export class TaskService {
   private db = getFirestore();
-
-  constructor(private authService: AuthService) {}
+  private authService = inject(AuthService);
 
   async addTask(title: string, completed: boolean) {
     const user = await this.authService.getCurrentUser();

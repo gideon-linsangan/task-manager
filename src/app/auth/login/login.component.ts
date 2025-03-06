@@ -1,28 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   imports: [
-    FormsModule]
+    ReactiveFormsModule
+  ]
 })
 export class LoginComponent {
-  email$ = '';
-  password$ = '';
-  errorMessage$ = '';
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  email$ = new FormControl('');
+  password$ = new FormControl('');
+  errorMessage$ = signal<string | null>(null);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  async onLogin(event: Event) {
+    event.preventDefault();
+    const emailValue = this.email$.getRawValue()?.trim() ?? '';
+    const passwordValue = this.password$.getRawValue()?.trim() ?? '';
 
-  async onLogin() {
+    if (!emailValue || !passwordValue) {
+      this.errorMessage$.set('Email and password are required.');
+      return;
+    }
     try {
-      await this.authService.login(this.email$, this.password$);
+      await this.authService.login(emailValue, passwordValue);
       this.router.navigate(['/tasks']);
-    } catch (error) {
-      this.errorMessage$ = 'Invalid email or password';
+    } catch (error: any) {
+      console.error(error);
+      this.errorMessage$.set(error.message || 'Invalid email or password');
     }
   }
 }

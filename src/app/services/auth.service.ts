@@ -7,6 +7,7 @@ import { onAuthStateChanged,
          createUserWithEmailAndPassword 
        } from '@angular/fire/auth';
 import { doc, setDoc, getFirestore } from 'firebase/firestore';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,15 @@ import { doc, setDoc, getFirestore } from 'firebase/firestore';
 export class AuthService {
   private auth = inject(Auth);
   private db = getFirestore();
+  private userSubject = new BehaviorSubject<User | null>(null);
+  user$ = this.userSubject.asObservable();
+
+  constructor() {
+    onAuthStateChanged(this.auth, (user) => {
+      this.userSubject.next(user);
+    });
+  }
+  
   async register(email: string, password: string) {
     const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
     const user = userCredential.user;
@@ -41,5 +51,9 @@ export class AuthService {
         resolve(user);
       });
     });
+  }
+
+  getUser() {
+    return this.userSubject.value;
   }
 }
