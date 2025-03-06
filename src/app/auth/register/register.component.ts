@@ -1,28 +1,30 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, signal, inject, NgZone } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
-
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],  
   imports: [
-    FormsModule
+    ReactiveFormsModule
   ]
 })
 export class RegisterComponent {
-  email$ = '';
-  password$ = '';
-  errorMessage$ = '';
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private ngZone = inject(NgZone);
+  email$ = new FormControl('');
+  password$ = new FormControl('');
+  errorMessage$ = signal<string | null>(null);
 
-  constructor(private authService: AuthService, private ngZone: NgZone) {}
-
-  async onRegister() {
+  async onRegister(event: Event) {
+    event.preventDefault();
     try {
-      await this.ngZone.run(() => this.authService.register(this.email$, this.password$));
-
-    } catch (error) {
-      this.errorMessage$ = 'Registration failed';
-    } 
+      await this.ngZone.run(() => this.authService.register(this.email$.getRawValue()?.trim() ?? '', this.password$.getRawValue()?.trim() ?? ''));
+      this.router.navigate(['/tasks']);
+    } catch (error: any) {
+      this.errorMessage$.set('Registration failed' + error.message);
+    }
   }
 }

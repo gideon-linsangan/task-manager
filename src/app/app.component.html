@@ -1,9 +1,14 @@
 <!-- <button mat-raised-button (click)="authService.logout()">Logout</button> -->
 <nav>
-  <a href='/' routerLink="/">Home</a> | 
-  <a href='/tasks' routerLink="/tasks">Tasks</a> | 
-  <a href='/login' routerLink="/login">Login</a> | 
-  <a href='/register' routerLink="/register">Register</a>
+  <a [routerLink]="'/'">Home</a> | 
+  @if(user() != null) {
+    <a [routerLink]="'/tasks'">Tasks</a> |
+    <a (click)="logout()">Logout</a> |
+  } @else {
+    <a [routerLink]="'/login'">Login</a> | 
+    <a [routerLink]="'/register'">Register</a>
+  }
+
 </nav>
 <hr>
 <router-outlet />
